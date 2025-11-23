@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>位置情報表示</title>
+    <title>位置情報と高さ表示</title>
 </head>
 <body>
-    <h1>現在地の位置情報</h1>
+    <h1>現在地の位置情報と標高</h1>
     <p id="location">位置情報を取得中...</p>
+    <p id="altitude">標高を取得中...</p>
 
     <script>
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
+                const latitude = position.coords.latitude;  // 緯度
+                const longitude = position.coords.longitude; // 経度
+                const altitude = position.coords.altitude;   // 標高
+
+                // 緯度・経度の表示
                 document.getElementById('location').innerHTML = `緯度: ${latitude} <br> 経度: ${longitude}`;
+
+                // 標高が取得できれば表示、それ以外の場合はメッセージを表示
+                if (altitude !== null) {
+                    document.getElementById('altitude').innerHTML = `標高: ${altitude} メートル`;
+                } else {
+                    document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
+                }
             }, function(error) {
                 document.getElementById('location').innerHTML = `位置情報の取得に失敗しました: ${error.message}`;
+                document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
             });
         } else {
             document.getElementById('location').innerHTML = "このブラウザは位置情報に対応していません。";
+            document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
         }
     </script>
 </body>
