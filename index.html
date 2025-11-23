@@ -3,35 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>位置情報と高さ表示</title>
+    <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.3.1/bignumber.min.js"></script>
+    <title>GPSの標高データによる時間の速さシミュレーション</title>
 </head>
 <body>
-    <h1>現在地の位置情報と標高</h1>
-    <p id="location">位置情報を取得中...</p>
+    <h1>GPSの標高データによる時間の速さシミュレーション</h1>
     <p id="altitude">標高を取得中...</p>
+    <p id="altitudeBase">基準標高：44.4m</p>
+    <p id="timeDiff"></p>
 
     <script>
+        function calculateTimeDilation(height) {
+            // グラビトン定数をBigNumberで表現
+            var G = new BigNumber('6.67430e-11');
+
+            // 光速をBigNumberで表現
+            var c = new BigNumber('299792458');
+
+            // 地球の質量をBigNumberで表現
+            var M = new BigNumber('5.972e24');
+
+            // 地球の半径をBigNumberで表現
+            var R = new BigNumber('6371000');
+
+            // 高さを定義
+            var h0 = new BigNumber(height);
+
+            // 重力による時間影響の計算 : 1 / sqrt(1 - (2GM)/(c^2(R+h0)))
+            var two = new BigNumber('2');
+            var GM = G.multipliedBy(M); 
+            var c2 = c.multipliedBy(c);
+            var R_plus_h0 = R.plus(h0);
+            var fraction = GM.multipliedBy(two).dividedBy(c2.multipliedBy(R_plus_h0));
+            var timeDilationFactor = new BigNumber('1').dividedBy((new BigNumber('1').minus(fraction)).sqrt());
+            return timeDilationFactor;
+        }
+        document.getElementById('test').innerHTML = `test:${timeDiff}`
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
-                const latitude = position.coords.latitude;  // 緯度
-                const longitude = position.coords.longitude; // 経度
                 const altitude = position.coords.altitude;   // 標高
-
-                // 緯度・経度の表示
-                document.getElementById('location').innerHTML = `緯度: ${latitude} <br> 経度: ${longitude}`;
-
                 // 標高が取得できれば表示、それ以外の場合はメッセージを表示
                 if (altitude !== null) {
-                    document.getElementById('altitude').innerHTML = `標高: ${altitude} メートル`;
+                    document.getElementById('altitude').innerHTML = `標高: ${altitude} m`;
+
+
+                    let timeBase = calculateTimeDilation(44.4); // 0 m
+                    let timeTarget = calculateTimeDilation(altitude); // 
+                    let timeRate = timeBase.dividedBy(timeTarget);
+                    let timeDiff = new BigNumber('1').minus(timeRate);
+                    let timeDiffPerDay = timeDiff.multipliedBy(new BigNumber('86400')); // 1日の秒数
+                    let timeNanoSecPerDay = timeDiffPerDay.multipliedBy(new BigNumber('1e9')); // ナノ秒に変換
+                    document.getElementById('timeDiff').innerHTML = `標高による時間の差: 約 ${timeNanoSecPerDay} ns/日`;   
+
                 } else {
                     document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
                 }
             }, function(error) {
-                document.getElementById('location').innerHTML = `位置情報の取得に失敗しました: ${error.message}`;
                 document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
             });
         } else {
-            document.getElementById('location').innerHTML = "このブラウザは位置情報に対応していません。";
             document.getElementById('altitude').innerHTML = "標高情報は利用できません。";
         }
     </script>
