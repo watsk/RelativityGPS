@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位置情報表示</title>
+</head>
+<body>
+    <h1>現在地の位置情報</h1>
+    <p id="location">位置情報を取得中...</p>
+
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                document.getElementById('location').innerHTML = `緯度: ${latitude} <br> 経度: ${longitude}`;
+            }, function(error) {
+                document.getElementById('location').innerHTML = `位置情報の取得に失敗しました: ${error.message}`;
+            });
+        } else {
+            document.getElementById('location').innerHTML = "このブラウザは位置情報に対応していません。";
+        }
+    </script>
+</body>
+</html>
