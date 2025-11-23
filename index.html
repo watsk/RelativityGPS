@@ -52,12 +52,12 @@
                     let timeRate = timeBase.dividedBy(timeTarget);
                     let timeDiff = timeRate.minus(new BigNumber('1'));
                     let timeDiffPerDay = timeDiff.multipliedBy(new BigNumber('86400')); // 1日の秒数
-                    let timeNanoSecPerDay = timeDiffPerDay.multipliedBy(new BigNumber('1e9')); // ナノ秒に変換
-                    if (timeNanoSecPerDay.isGreaterThan(0)) {
-                        document.getElementById('timeDiff').innerHTML = `時間の差: ここでは1日あたり ${timeNanoSecPerDay} ns時間が速く進みます。`;   
+                    let timePicoSecPerDay = timeDiffPerDay.multipliedBy(new BigNumber('1e12')); // ピコ秒に変換
+                    if (timePicoSecPerDay.isGreaterThan(0)) {
+                        document.getElementById('timeDiff').innerHTML = `ここでは1日あたり ${timePicoSecPerDay} ピコ秒だけ時間が速く進みます。`;   
                     }
                     else {
-                        document.getElementById('timeDiff').innerHTML = `時間の差: ここでは1日あたり ${timeNanoSecPerDay.abs()} ns時間が遅く進みます。`;   
+                        document.getElementById('timeDiff').innerHTML = `ここでは1日あたり ${timePicoSecPerDay.abs()} ピコ秒だけ時間が遅く進みます。`;   
                     }
 
                 } else {
